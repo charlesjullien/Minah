@@ -41,6 +41,7 @@ contract Minah is ERC1155, Ownable {
 
     uint256 public currentSupply;
     uint256 public beginDate;
+    uint256 public amountToReleaseForCurrentStage;
     //address contractOwner; // jln ... pas forcément besoin de la garder ecrite celle là.
     address receiver; // frblocks adress
     address payer; // frblocks adress
@@ -73,11 +74,11 @@ contract Minah is ERC1155, Ownable {
         currentSupply = 0;
         USDC = IERC20(0x0FA8781a83E46826621b3BC094Ea2A0212e71B23); //USDC contract address on polygon mumbai.
         receiver = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
-        payer = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // // Julien's address
+        payer = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         // contractOwner = // = 0xaddresseDeJln
         countdownStart = false;
         beginDate = 0;
-        transferOwnership(0x314E53B23Ac8bf23b024af85fE50156894bcC42C); // addr SUN
+        transferOwnership(0x314E53B23Ac8bf23b024af85fE50156894bcC42C); // Julien's address
     }
 
     /// @notice Use this function to change the current URI storing the NFT metadatas.
@@ -95,7 +96,7 @@ contract Minah is ERC1155, Ownable {
     /// @notice function to mint _amount NFTs, and get registred in the investors Array for remuneration later
     /// @param _user : the address generated during profile creation for the user connected at the moment trying to buy NFTs.
     /// @param _amount : the amount of NFTs the user wants to buy.
-    function mint(address _user, uint256 _amount) public { // ajouter onlyOwner ?
+    function mint(address _user, uint256 _amount) public { // ajouter onlyOwner ? // CHECK WITH JULIEN ADD ONLYOWNER 
         uint256 USD_amount = PRICE * _amount * 10**6;
         require(state == InvestmentStatus.buyingPhase, "Buying phase is now over.");
         require(investors[_user] == true, "_user is not part of the Minah verified investors.");
@@ -123,7 +124,7 @@ contract Minah is ERC1155, Ownable {
     /// @notice function to know how much to approve() on the USDC smart contract before releasing the amount to all investors.
     /// @param percent : the percentage of ROI that is going to be released on next remuneration. 
     /// @return the amount to release for the next remuneration
-    function calculateAmountTorelease (uint256 percent) external onlyOwner view returns (uint256) {
+    function calculateAmountToRelease (uint256 percent) public onlyOwner view returns (uint256) {
         uint256 amountToRelease = 0;
         uint256 i = 0;
         percent = percent * 10**6; 
@@ -138,12 +139,17 @@ contract Minah is ERC1155, Ownable {
     /// @param percent : the percentage of ROI that is going to be released for that stage.
     function distribute (uint256 percent) private onlyOwner {
         require (state != InvestmentStatus.ended, "The investing and distribution phases are over.");
+        amountToReleaseForCurrentStage = calculateAmountToRelease(percent);
+        percent = percent * 10**6;
+        uint256 verifyReleasedAmount = 0;
         uint256 i = 0;
         while (i < investorsArray.length) {
-            require(USDC.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE) * 1000000), "transferFrom failed"); // call usdc approve() function before of course.
-            claimedAmount[investorsArray[i]] += balanceOf(investorsArray[i], 0) * percent / 100;
+            require(USDC.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE)), "transferFrom failed"); // call usdc approve() function before of course.
+            claimedAmount[investorsArray[i]] += (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE;
+            verifyReleasedAmount += (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE;
             i++;
         }
+        require(verifyReleasedAmount == amountToReleaseForCurrentStage, "There has been an issue with the distribution.");
     }
 
     /// @notice this function needs to be called by the owner at the end of every distribution period/stage to trigger the current release and next stage. 
@@ -207,4 +213,5 @@ contract Minah is ERC1155, Ownable {
     function setPayer (address _payer) external onlyOwner() {
         payer = _payer;
     }
+
 }
