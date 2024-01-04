@@ -46,8 +46,8 @@ contract Minah is ERC1155, Ownable {
     address payer; // frblocks adress
     address[] public investorsArray;
     bool countdownStart;
-    mapping (address => bool) investors;
-    mapping (address => uint256) claimedAmount;
+    mapping (address => bool) public investors; //public ?
+    mapping (address => uint256) public claimedAmount;
 
     /// @notice All the workflow stages in logic ascending order for the contract workflow   
     enum InvestmentStatus {
@@ -72,12 +72,12 @@ contract Minah is ERC1155, Ownable {
     constructor() ERC1155("") Ownable() {
         currentSupply = 0;
         USDC = IERC20(0x0FA8781a83E46826621b3BC094Ea2A0212e71B23); //USDC contract address on polygon mumbai.
-        receiver = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // My S2 address for tests
-        payer = receiver;
+        receiver = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
+        payer = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // // Julien's address
         // contractOwner = // = 0xaddresseDeJln
         countdownStart = false;
         beginDate = 0;
-        transferOwnership(0x314E53B23Ac8bf23b024af85fE50156894bcC42C); // addr julien
+        transferOwnership(0x314E53B23Ac8bf23b024af85fE50156894bcC42C); // addr SUN
     }
 
     /// @notice Use this function to change the current URI storing the NFT metadatas.
@@ -140,7 +140,7 @@ contract Minah is ERC1155, Ownable {
         require (state != InvestmentStatus.ended, "The investing and distribution phases are over.");
         uint256 i = 0;
         while (i < investorsArray.length) {
-            require(USDC.transferFrom(payer, investorsArray[i], (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE), "transferFrom failed"); // call usdc approve() function before of course.
+            require(USDC.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE) * 1000000), "transferFrom failed"); // call usdc approve() function before of course.
             claimedAmount[investorsArray[i]] += balanceOf(investorsArray[i], 0) * percent / 100;
             i++;
         }
@@ -193,6 +193,10 @@ contract Minah is ERC1155, Ownable {
         if (state == InvestmentStatus.threeYearsSixMonthsDone)
             state = InvestmentStatus.ended;
     }
+
+    function seeClaimedAmount(address _investor) external view returns (uint256) {
+        return (claimedAmount[_investor]);
+    } 
 
     //////////////////////// TO DELETE FOR PROD ////////////////////////////////
 
