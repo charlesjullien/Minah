@@ -10,25 +10,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 
 
-// ==> TESTS <== //
-/*
-Call les fonctions en tant que non onwner
-Try de mint si on a pas assez d'USDC
-Try de mint si on est pas registred en tant que verified user
-Try de mint quand c'est pas la bonne phase pour ca.
-Try de mint et verifier si le user s'ajoute bien dans le investorsArray
-Try de mint - que la limite des 150
-Try de mint + que la limite des 150
-Try de mint + que la total supply
-verifier l'etat des variables sensibles avant et après le call à startChronometer()
-essayer d'appeler 2 fois startChronometer()
-
-
-
-
-*/
-
-
 contract Minah is ERC1155, Ownable {
 
     IERC20 public USDC;
@@ -72,7 +53,7 @@ contract Minah is ERC1155, Ownable {
     /// @notice Inititialyze the contract as an ERC1155 and Ownable for the contract builder address.
     constructor() ERC1155("") Ownable() {
         currentSupply = 0;
-        USDC = IERC20(0x0FA8781a83E46826621b3BC094Ea2A0212e71B23); //USDC contract address on polygon mumbai.
+        USDC = IERC20(0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359); // Native USDC contract address on polygon mainnet
         receiver = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         payer = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         // contractOwner = // = 0xaddresseDeJln
@@ -155,43 +136,43 @@ contract Minah is ERC1155, Ownable {
     /// @notice this function needs to be called by the owner at the end of every distribution period/stage to trigger the current release and next stage. 
     function releaseDistribution () external onlyOwner {
         require(countdownStart == true, "Countdown has not started yet.");
-        if (block.timestamp > (beginDate + 270) && state == InvestmentStatus.beforeFirstRelease) {
+        if (block.timestamp > (beginDate + 15768000) && state == InvestmentStatus.beforeFirstRelease) { // 182.5 days (6 months)
             distribute(9);
             state = InvestmentStatus.sixMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 350) && state == InvestmentStatus.sixMonthsDone) {
+        else if (block.timestamp > (beginDate + 26280000) && state == InvestmentStatus.sixMonthsDone) { // 304.1 days (10 months)
             distribute(8);
             state = InvestmentStatus.tenMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 630) && state == InvestmentStatus.tenMonthsDone) {
+        else if (block.timestamp > (beginDate + 36792000) && state == InvestmentStatus.tenMonthsDone) { // 425.8 days (14 months)
             distribute(8);
             state = InvestmentStatus.oneYearTwoMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 810) && state == InvestmentStatus.oneYearTwoMonthsDone) {
+        else if (block.timestamp > (beginDate + 47304000) && state == InvestmentStatus.oneYearTwoMonthsDone) { // 547.5 days (18 months)
             distribute(8);
             state = InvestmentStatus.oneYearSixMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 990) && state == InvestmentStatus.oneYearSixMonthsDone) {
+        else if (block.timestamp > (beginDate + 57816000) && state == InvestmentStatus.oneYearSixMonthsDone) { // 669.1 days (22 months)
             distribute(8);
             state = InvestmentStatus.oneYearTenMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 1170) && state == InvestmentStatus.oneYearTenMonthsDone) {
+        else if (block.timestamp > (beginDate + 68328000) && state == InvestmentStatus.oneYearTenMonthsDone) { // 790.8 days (26 months)
             distribute(8);
             state = InvestmentStatus.twoYearsTwoMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 1350) && state == InvestmentStatus.twoYearsTwoMonthsDone) {
+        else if (block.timestamp > (beginDate + 78840000) && state == InvestmentStatus.twoYearsTwoMonthsDone) { // 912.5 days (30 months)
             distribute(8);
             state = InvestmentStatus.twoYearsSixMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 1530) && state == InvestmentStatus.twoYearsSixMonthsDone) {
+        else if (block.timestamp > (beginDate + 89352000) && state == InvestmentStatus.twoYearsSixMonthsDone) { // 1034.1 days (34 months)
             distribute(8);
             state = InvestmentStatus.twoYearsTenMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 1710) && state == InvestmentStatus.twoYearsTenMonthsDone) {
+        else if (block.timestamp > (beginDate + 99864000) && state == InvestmentStatus.twoYearsTenMonthsDone) { // 1155.8 days (38 months)
             distribute(8);
             state = InvestmentStatus.threeYearsTwoMonthsDone;
         }
-        else if (block.timestamp > (beginDate + 1890) && state == InvestmentStatus.threeYearsTwoMonthsDone) {
+        else if (block.timestamp > (beginDate + 110376000) && state == InvestmentStatus.threeYearsTwoMonthsDone) { // 1277.5 days (42 months)
             distribute(108);
             state = InvestmentStatus.threeYearsSixMonthsDone;
 
@@ -204,7 +185,7 @@ contract Minah is ERC1155, Ownable {
         return (claimedAmount[_investor]);
     } 
 
-    //////////////////////// TO DELETE FOR PROD ////////////////////////////////
+    //////////////////////// TO DELETE FOR PROD ? ////////////////////////////////
 
     function setReceiver (address _receiver) external onlyOwner() {
         receiver = _receiver;
