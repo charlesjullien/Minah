@@ -1,14 +1,28 @@
-node_modules
-.env
+dev/node_modules
+dev/.env
+
+prod/node_modules
+prod/.env
 
 # Hardhat files
-/cache
-/artifacts
+dev/cache
+dev/artifacts
+
+prod/cache
+prod/artifacts
 
 # TypeChain files
-/typechain
-/typechain-types
+dev/typechain
+dev/typechain-types
+
+prod/typechain
+prod/typechain-types
 
 # solidity-coverage files
-/coverage
-/coverage.json
+dev/coverage
+dev/coverage.json
+
+prod/coverage
+prod/coverage.json
+
+
