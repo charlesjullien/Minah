@@ -4,14 +4,22 @@ The .env file is not included in this repository.
 
 Create it and add the following keys :  
 
+#dev :
 POLYGONSCAN=[YOUR POLYGONSCAN API KEY]  
 ALCHEMYMUMBAI=[YOUR ALCHEMY MUMBAI API KEY]  
-PK=[YOUR DEV WALLET PRIVATE KEY WITH MUMBAI MATIC ON IT]  
+PK=[YOUR DEV WALLET PRIVATE KEY WITH MUMBAI MATIC ON IT] 
+
+#prod :
+POLYGONSCAN=[YOUR POLYGONSCAN API KEY]  
+ALCHEMYPOLYGON=[YOUR ALCHEMY POLYGON MAINNET API KEY]  
+PK=[YOUR DEV WALLET PRIVATE KEY WITH MAINNET MATIC ON IT] 
 
 to run and deploy it through bash command line :  
 
 git clone git@github.com:charlesjullien/Minah.git  
-cd Minah  
+cd Minah 
+// let's say you want to use the dev folder : 
+cd dev
 yarn install  
 (create your .env file here as explained above)  
 yarn hardhat run ./scripts/deploy.js --network polygonMumbai  
