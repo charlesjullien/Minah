@@ -31,7 +31,7 @@ essayer d'appeler 2 fois startChronometer()
 
 contract Minah is ERC1155, Ownable {
 
-    IERC20 public USDC;
+    IERC20 public STABLECOIN;
 
     uint256 public constant ITEM_ID = 0;
     uint256 public constant TOTAL_SUPPLY = 4500;
@@ -71,12 +71,18 @@ contract Minah is ERC1155, Ownable {
     /// @notice Inititialyze the contract as an ERC1155 and Ownable for the contract builder address.
     constructor() ERC1155("") Ownable() {
         currentSupply = 0;
-        USDC = IERC20(0x0FA8781a83E46826621b3BC094Ea2A0212e71B23); //USDC contract address on polygon mumbai.
+        STABLECOIN = IERC20(0x0FA8781a83E46826621b3BC094Ea2A0212e71B23); //USDC contract address on polygon mumbai.
         receiver = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         payer = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         countdownStart = false;
         beginDate = 0;
         transferOwnership(0x314E53B23Ac8bf23b024af85fE50156894bcC42C); // Julien's address
+    }
+
+    /// @notice Use this function to change the current stablecoin contract address in case the curren tone is depegged 
+    /// @param _newStablecoinInterface : the new stablecoin address to replace the old one in the IERC20 'STABLECOIN' interface
+    function setNewStablecoinInterface(address _newStablecoinInterface) public onlyOwner {
+        STABLECOIN = IERC20(_newStablecoinInterface);
     }
 
     /// @notice Use this function to change the current URI storing the NFT metadatas.
@@ -99,9 +105,9 @@ contract Minah is ERC1155, Ownable {
         require(state == InvestmentStatus.buyingPhase, "Buying phase is now over.");
         require(investors[_user] == true, "_user is not part of the Minah verified investors.");
         require(balanceOf(_user, 0) + _amount >= 40 && balanceOf(_user, 0) + _amount <= 150, "Total owned items must be greater than or equal to 40 and less than or equal to 150.");
-        require(USDC.balanceOf(_user) >= (PRICE * _amount), "PRICE is 10 USD per NFT"); //add decimals
+        require(STABLECOIN.balanceOf(_user) >= (PRICE * _amount), "PRICE is 10 USD per NFT"); //add decimals
         require((currentSupply + _amount) <= TOTAL_SUPPLY, "Total and maximum supply is 4500 items.");
-        require(USDC.transferFrom(_user, receiver, USD_amount), "transferFrom failed"); // call "approve(thisContractAddress, _amount * 10**6)" function in the frontend before this function
+        require(STABLECOIN.transferFrom(_user, receiver, USD_amount), "transferFrom failed"); // call "approve(thisContractAddress, _amount * 10**6)" function in the frontend before this function
         _mint(_user, ITEM_ID, _amount, "");
         currentSupply += _amount;
         if (balanceOf(_user, 0) - _amount == 0)
@@ -119,7 +125,7 @@ contract Minah is ERC1155, Ownable {
         currentSupply = TOTAL_SUPPLY;
     }
 
-    /// @notice function to know how much to approve() on the USDC smart contract before releasing the amount to all investors.
+    /// @notice function to know how much to approve() on the STABLECOIN smart contract before releasing the amount to all investors.
     /// @param percent : the percentage of ROI that is going to be released on next remuneration. 
     /// @return the amount to release for the next remuneration
     function calculateAmountToRelease (uint256 percent) public onlyOwner view returns (uint256) {
@@ -142,7 +148,7 @@ contract Minah is ERC1155, Ownable {
         uint256 verifyReleasedAmount = 0;
         uint256 i = 0;
         while (i < investorsArray.length) {
-            require(USDC.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE)), "transferFrom failed"); // call usdc approve() function before of course.
+            require(STABLECOIN.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE)), "transferFrom failed"); // call usdc approve() function before of course.
             claimedAmount[investorsArray[i]] += (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE;
             verifyReleasedAmount += (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE;
             i++;

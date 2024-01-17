@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Minah is ERC1155, Ownable {
 
-    IERC20 public USDC;
+    IERC20 public STABLECOIN;
 
     uint256 public constant ITEM_ID = 0;
     uint256 public constant TOTAL_SUPPLY = 4500;
@@ -53,7 +53,7 @@ contract Minah is ERC1155, Ownable {
     /// @notice Inititialyze the contract as an ERC1155 and Ownable for the contract builder address.
     constructor() ERC1155("") Ownable() {
         currentSupply = 0;
-        USDC = IERC20(0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359); // Native USDC contract address on polygon mainnet
+        STABLECOIN = IERC20(0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359); // Native USDC contract address on polygon mainnet
         receiver = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         payer = 0x314E53B23Ac8bf23b024af85fE50156894bcC42C; // Julien's address
         // contractOwner = // = 0xaddresseDeJln
@@ -82,9 +82,9 @@ contract Minah is ERC1155, Ownable {
         require(state == InvestmentStatus.buyingPhase, "Buying phase is now over.");
         require(investors[_user] == true, "_user is not part of the Minah verified investors.");
         require(balanceOf(_user, 0) + _amount >= 40 && balanceOf(_user, 0) + _amount <= 150, "Total owned items must be greater than or equal to 40 and less than or equal to 150.");
-        require(USDC.balanceOf(_user) >= (PRICE * _amount), "PRICE is 10 USD per NFT"); //add decimals
+        require(STABLECOIN.balanceOf(_user) >= (PRICE * _amount), "PRICE is 10 USD per NFT"); //add decimals
         require((currentSupply + _amount) <= TOTAL_SUPPLY, "Total and maximum supply is 4500 items.");
-        require(USDC.transferFrom(_user, receiver, USD_amount), "transferFrom failed"); // call "approve(thisContractAddress, _amount * 10**6)" function in the frontend before this function
+        require(STABLECOIN.transferFrom(_user, receiver, USD_amount), "transferFrom failed"); // call "approve(thisContractAddress, _amount * 10**6)" function in the frontend before this function
         _mint(_user, ITEM_ID, _amount, "");
         currentSupply += _amount;
         if (balanceOf(_user, 0) - _amount == 0)
@@ -125,7 +125,7 @@ contract Minah is ERC1155, Ownable {
         uint256 verifyReleasedAmount = 0;
         uint256 i = 0;
         while (i < investorsArray.length) {
-            require(USDC.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE)), "transferFrom failed"); // call usdc approve() function before of course.
+            require(STABLECOIN.transferFrom(payer, investorsArray[i], ((balanceOf(investorsArray[i], 0) * percent / 100) * PRICE)), "transferFrom failed"); // call usdc approve() function before of course.
             claimedAmount[investorsArray[i]] += (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE;
             verifyReleasedAmount += (balanceOf(investorsArray[i], 0) * percent / 100) * PRICE;
             i++;
