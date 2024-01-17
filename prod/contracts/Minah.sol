@@ -62,6 +62,12 @@ contract Minah is ERC1155, Ownable {
         transferOwnership(0x314E53B23Ac8bf23b024af85fE50156894bcC42C); // Julien's address
     }
 
+    /// @notice Use this function to change the current stablecoin contract address in case the current one is depegged 
+    /// @param _newStablecoinInterface : the new stablecoin address to replace the old one in the IERC20 'STABLECOIN' interface
+    function setNewStablecoinInterface(address _newStablecoinInterface) public onlyOwner {
+        STABLECOIN = IERC20(_newStablecoinInterface);
+    }
+
     /// @notice Use this function to change the current URI storing the NFT metadatas.
     /// @param newuri : the new Uri to replace the old one.
     function setURI(string memory newuri) public onlyOwner {
